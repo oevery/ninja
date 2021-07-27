@@ -242,7 +242,7 @@ module.exports = class User {
 
   static async getPoolInfo() {
     const count = await getEnvsCount();
-    const allowCount = (process.env.ALLOW_NUM || 20) - count;
+    const allowCount = (process.env.ALLOW_NUM || 40) - count;
     return {
       marginCount: allowCount >= 0 ? allowCount : 0,
       allowAdd: Boolean(process.env.ALLOW_ADD) || true,
