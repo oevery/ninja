@@ -1,7 +1,7 @@
 module.exports = {
   apps: [
     {
-      name: 'jdc',
+      name: 'ninja',
       script: './app.js',
     },
   ],
