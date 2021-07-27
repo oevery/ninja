@@ -92,4 +92,25 @@ router.post('/api/delaccount', body(), async (ctx) => {
   ctx.body.data = data;
 });
 
+router.post('/api/update/remark', body(), async (ctx) => {
+  const body = ctx.request.body;
+  const eid = body.eid;
+  const remark = body.remark;
+  const user = new User({ eid, remark });
+  const data = await user.updateRemark();
+  ctx.body.data = data;
+})
+
+router.get('/api/users', async (ctx) => {
+  if (ctx.host.startsWith('localhost')) {
+    const data = await User.getUsers();
+    ctx.body.data = data;
+  } else {
+    ctx.body = {
+      code: 401,
+      message: '该接口仅能通过 localhost 访问',
+    };
+  }
+});
+
 app.listen(5701);

@@ -26,9 +26,10 @@ module.exports = class User {
   okl_token;
   cookies;
   QRCode;
+  remark;
   #s_token;
 
-  constructor({ token, okl_token, cookies, pt_key, pt_pin, cookie, eid }) {
+  constructor({ token, okl_token, cookies, pt_key, pt_pin, cookie, eid, remarks, remark }) {
     this.token = token;
     this.okl_token = okl_token;
     this.cookies = cookies;
@@ -36,6 +37,7 @@ module.exports = class User {
     this.pt_pin = pt_pin;
     this.cookie = cookie;
     this.eid = eid;
+    this.remark = remark;
 
     if (pt_key && pt_pin) {
       this.cookie = 'pt_key=' + this.pt_key + ';pt_pin=' + this.pt_pin + ';';
@@ -44,6 +46,10 @@ module.exports = class User {
     if (cookie) {
       this.pt_pin = cookie.match(/pt_pin=(.*?);/)[1];
       this.pt_key = cookie.match(/pt_key=(.*?);/)[1];
+    }
+
+    if (this.remarks) {
+      this.remark = remarks.match(/remark=(.*?);/) && remarks.match(/remark=(.*?);/)[1];
     }
   }
 
@@ -212,11 +218,40 @@ module.exports = class User {
     }
     this.cookie = env.value;
     this.timestamp = env.timestamp;
+    const remarks = env.remarks;
+    if (remarks) {
+      this.remark = remarks.match(/remark=(.*?);/) && remarks.match(/remark=(.*?);/)[1];
+    }
     await this.#getNickname();
     return {
       nickName: this.nickName,
       eid: this.eid,
       timestamp: this.timestamp,
+      remark: this.remark,
+    };
+  }
+
+  async updateRemark() {
+    if (!this.eid || !this.remark || this.remark.replace(/(^\s*)|(\s*$)/g, '') === '') {
+      throw new UserError('参数错误', 240, 200);
+    }
+
+    const envs = await getEnvs();
+    const env = await envs.find((item) => item._id === this.eid);
+    if (!env) {
+      throw new UserError('没有找到这个账户，重新登录试试看哦', 230, 200);
+    }
+    this.cookie = env.value;
+
+    const remarks = `remark=${this.remark};`;
+
+    const updateEnvBody = await updateEnv(this.cookie, this.eid, remarks);
+    if (updateEnvBody.code !== 200) {
+      throw new UserError('更新/上传备注出错，请重试', 241, 200);
+    }
+
+    return {
+      message: '更新/上传备注成功',
     };
   }
 
@@ -249,7 +284,21 @@ module.exports = class User {
     };
   }
 
-  async #getNickname() {
+  static async getUsers() {
+    const envs = await getEnvs();
+    const result = envs.map(async (env) => {
+      const user = new User({ cookie: env.value, remarks: env.remarks });
+      await user.#getNickname(true);
+      return {
+        pt_pin: user.pt_pin,
+        nickName: user.nickName,
+        remark: user.remark || user.nickName,
+      };
+    });
+    return Promise.all(result);
+  }
+
+  async #getNickname(nocheck) {
     const body = await api({
       url: `https://me-api.jd.com/user_new/info/GetJDUserInfoUnion?orgFlag=JD_PinGou_New&callSource=mainorder&channel=4&isHomewhite=0&sceneval=2&_=${Date.now()}&sceneval=2&g_login_type=1&g_ty=ls`,
       headers: {
@@ -264,10 +313,10 @@ module.exports = class User {
         Host: 'me-api.jd.com',
       },
     }).json();
-    if (!body.data?.userInfo) {
-    throw new UserError('获取用户信息失败，请检查您的 cookie ！', 201, 200);
+    if (!body.data?.userInfo && !nocheck) {
+      throw new UserError('获取用户信息失败，请检查您的 cookie ！', 201, 200);
     }
-    this.nickName = body.data?.userInfo.baseInfo.nickname || this.pt_pin;
+    this.nickName = body.data?.userInfo.baseInfo.nickname || decodeURIComponent(this.pt_pin);
   }
 
   #formatSetCookies(headers, body) {
