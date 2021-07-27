@@ -267,6 +267,7 @@ module.exports = class User {
     if (!body.data?.userInfo) {
     throw new UserError('获取用户信息失败，请检查您的 cookie ！', 201, 200);
     }
+    this.nickName = body.data?.userInfo.baseInfo.nickname || this.pt_pin;
   }
 
   #formatSetCookies(headers, body) {
