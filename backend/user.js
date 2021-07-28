@@ -9,6 +9,7 @@ const path = require('path');
 const qlDir = process.env.QL_DIR || '/ql';
 const notifyFile = path.join(qlDir, 'shell/notify.sh');
 const { exec } = require('child_process');
+const { USER_AGENT } = require('./utils/USER_AGENT');
 
 const api = got.extend({
   retry: { limit: 0 },
@@ -16,6 +17,7 @@ const api = got.extend({
 });
 
 module.exports = class User {
+  ua;
   pt_key;
   pt_pin;
   cookie;
@@ -29,7 +31,7 @@ module.exports = class User {
   remark;
   #s_token;
 
-  constructor({ token, okl_token, cookies, pt_key, pt_pin, cookie, eid, remarks, remark }) {
+  constructor({ token, okl_token, cookies, pt_key, pt_pin, cookie, eid, remarks, remark, ua }) {
     this.token = token;
     this.okl_token = okl_token;
     this.cookies = cookies;
@@ -38,6 +40,7 @@ module.exports = class User {
     this.cookie = cookie;
     this.eid = eid;
     this.remark = remark;
+    this.ua = ua;
 
     if (pt_key && pt_pin) {
       this.cookie = 'pt_key=' + this.pt_key + ';pt_pin=' + this.pt_pin + ';';
@@ -54,6 +57,7 @@ module.exports = class User {
   }
 
   async getQRConfig() {
+    this.ua = this.ua || USER_AGENT;
     const taskUrl = `https://plogin.m.jd.com/cgi-bin/mm/new_login_entrance?lang=chs&appid=300&returnurl=https://wq.jd.com/passport/LoginRedirect?state=${Date.now()}&returnurl=https://home.m.jd.com/myJd/newhome.action?sceneval=2&ufc=&/myJd/home.action&source=wq_passport`;
     const response = await api({
       url: taskUrl,
@@ -63,8 +67,7 @@ module.exports = class User {
         Accept: 'application/json, text/plain, */*',
         'Accept-Language': 'zh-cn',
         Referer: taskUrl,
-        'User-Agent':
-          'jdapp;android;10.0.5;11;0393465333165363-5333430323261366;network/wifi;model/M2102K1C;osVer/30;appBuild/88681;partner/lc001;eufv/1;jdSupportDarkMode/0;Mozilla/5.0 (Linux; Android 11; M2102K1C Build/RKQ1.201112.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/77.0.3865.120 MQQBrowser/6.2 TBS/045534 Mobile Safari/537.36',
+        'User-Agent':this.ua,
         Host: 'plogin.m.jd.com',
       },
     });
@@ -92,8 +95,7 @@ module.exports = class User {
         Accept: 'application/json, text/plain, */*',
         'Accept-Language': 'zh-cn',
         Referer: taskUrl,
-        'User-Agent':
-          'jdapp;android;10.0.5;11;0393465333165363-5333430323261366;network/wifi;model/M2102K1C;osVer/30;appBuild/88681;partner/lc001;eufv/1;jdSupportDarkMode/0;Mozilla/5.0 (Linux; Android 11; M2102K1C Build/RKQ1.201112.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/77.0.3865.120 MQQBrowser/6.2 TBS/045534 Mobile Safari/537.36',
+        'User-Agent':this.ua,
         Host: 'plogin.m.jd.com',
         Cookie: this.cookies,
       },
@@ -127,8 +129,7 @@ module.exports = class User {
         Accept: 'application/json, text/plain, */*',
         'Accept-Language': 'zh-cn',
         Referer: loginUrl,
-        'User-Agent':
-          'jdapp;android;10.0.5;11;0393465333165363-5333430323261366;network/wifi;model/M2102K1C;osVer/30;appBuild/88681;partner/lc001;eufv/1;jdSupportDarkMode/0;Mozilla/5.0 (Linux; Android 11; M2102K1C Build/RKQ1.201112.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/77.0.3865.120 MQQBrowser/6.2 TBS/045534 Mobile Safari/537.36',
+        'User-Agent':this.ua,
         Cookie: this.cookies,
       },
     });

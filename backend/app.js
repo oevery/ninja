@@ -63,6 +63,7 @@ router.get('/api/qrcode', async (ctx) => {
     okl_token: user.okl_token,
     cookies: user.cookies,
     QRCode: user.QRCode,
+    ua: user.ua,
   };
 });
 
