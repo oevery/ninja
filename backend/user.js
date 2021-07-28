@@ -172,16 +172,7 @@ module.exports = class User {
         this.eid = body.data._id;
         this.timestamp = body.data.timestamp;
         message = `添加成功，可以愉快的白嫖啦 ${this.nickName}`;
-        exec(
-          `${notifyFile} "Ninja 运行通知" "工具人 ${this.nickName}(${decodeURIComponent(this.pt_pin)}) 已上线"`,
-          (error, stdout, stderr) => {
-            if (error) {
-              console.log(stderr);
-            } else {
-              console.log(stdout);
-            }
-          }
-        );
+        this.#sendNotify('Ninja 运行通知', `用户 ${this.nickName}(${decodeURIComponent(this.pt_pin)}) 已上线"`);
       }
     } else {
       this.eid = env._id;
@@ -191,16 +182,7 @@ module.exports = class User {
       }
       this.timestamp = body.data.timestamp;
       message = `欢迎回来，${this.nickName}`;
-      exec(
-        `${notifyFile} "Ninja 运行通知" "工具人 ${this.nickName}(${decodeURIComponent(this.pt_pin)}) 更新了 CK"`,
-        (error, stdout, stderr) => {
-          if (error) {
-            console.log(stderr);
-          } else {
-            console.log(stdout);
-          }
-        }
-      );
+      this.#sendNotify('Ninja 运行通知', `用户 ${this.nickName}(${decodeURIComponent(this.pt_pin)}) 已更新 CK"`);
     }
     return {
       nickName: this.nickName,
@@ -260,16 +242,7 @@ module.exports = class User {
     if (body.code !== 200) {
       throw new UserError(body.message || '删除账户错误，请重试', 240, body.code || 200);
     }
-    exec(
-      `${notifyFile} "Ninja 运行通知" "工具人 ${this.nickName}(${decodeURIComponent(this.pt_pin)}) 删号跑路了"`,
-      (error, stdout, stderr) => {
-        if (error) {
-          console.log(stderr);
-        } else {
-          console.log(stdout);
-        }
-      }
-    );
+    this.#sendNotify('Ninja 运行通知', `用户 ${this.nickName}(${decodeURIComponent(this.pt_pin)}) 删号跑路了"`);
     return {
       message: '账户已移除',
     };
@@ -331,6 +304,20 @@ module.exports = class User {
       ls_token = ls_token.substring(ls_token.indexOf('=') + 1, ls_token.indexOf(';'));
       this.cookies = `guid=${guid};lang=chs;lsid=${lsid};ls_token=${ls_token};`;
       resolve();
+    });
+  }
+
+  #sendNotify(title, content) {
+    if (!process.env.NOTIFY) {
+      console.log('Ninja 通知已关闭\n' + title + '\n' + content + '\n' + '已跳过发送');
+      return;
+    }
+    exec(`${notifyFile} "${title}" "${content}"`, (error, stdout, stderr) => {
+      if (error) {
+        console.log(stderr);
+      } else {
+        console.log(stdout);
+      }
     });
   }
 };
