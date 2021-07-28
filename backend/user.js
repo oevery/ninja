@@ -9,7 +9,7 @@ const path = require('path');
 const qlDir = process.env.QL_DIR || '/ql';
 const notifyFile = path.join(qlDir, 'shell/notify.sh');
 const { exec } = require('child_process');
-const { USER_AGENT } = require('./utils/USER_AGENT');
+const { GET_RANDOM_TIME_UA } = require('./utils/USER_AGENT');
 
 const api = got.extend({
   retry: { limit: 0 },
@@ -57,7 +57,7 @@ module.exports = class User {
   }
 
   async getQRConfig() {
-    this.ua = this.ua || USER_AGENT;
+    this.ua = this.ua || process.env.UA || GET_RANDOM_TIME_UA();
     const taskUrl = `https://plogin.m.jd.com/cgi-bin/mm/new_login_entrance?lang=chs&appid=300&returnurl=https://wq.jd.com/passport/LoginRedirect?state=${Date.now()}&returnurl=https://home.m.jd.com/myJd/newhome.action?sceneval=2&ufc=&/myJd/home.action&source=wq_passport`;
     const response = await api({
       url: taskUrl,
