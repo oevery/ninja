@@ -67,7 +67,7 @@ module.exports = class User {
         Accept: 'application/json, text/plain, */*',
         'Accept-Language': 'zh-cn',
         Referer: taskUrl,
-        'User-Agent':this.ua,
+        'User-Agent': this.ua,
         Host: 'plogin.m.jd.com',
       },
     });
@@ -95,7 +95,7 @@ module.exports = class User {
         Accept: 'application/json, text/plain, */*',
         'Accept-Language': 'zh-cn',
         Referer: taskUrl,
-        'User-Agent':this.ua,
+        'User-Agent': this.ua,
         Host: 'plogin.m.jd.com',
         Cookie: this.cookies,
       },
@@ -129,7 +129,7 @@ module.exports = class User {
         Accept: 'application/json, text/plain, */*',
         'Accept-Language': 'zh-cn',
         Referer: loginUrl,
-        'User-Agent':this.ua,
+        'User-Agent': this.ua,
         Cookie: this.cookies,
       },
     });
@@ -310,7 +310,8 @@ module.exports = class User {
   }
 
   #sendNotify(title, content) {
-    if (!process.env.NOTIFY) {
+    const notify = process.env.NOTIFY || true;
+    if (!notify) {
       console.log('Ninja 通知已关闭\n' + title + '\n' + content + '\n' + '已跳过发送');
       return;
     }
