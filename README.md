@@ -12,7 +12,12 @@ Ninja 仅支持 qinglong 2.8+
 
 ## 特性
 
-* 扫码，跳转登录添加/更新 cookie
+- [x] 扫码，跳转登录添加/更新 cookie
+- [x] 添加/更新 cookie 后发送通知
+- [x] 添加备注并将通知中的 pt_pin nickName 修改为备注
+- [ ] 替换 cookie 失效通知
+- [ ] 添加扫码关注通知
+- [ ] 扫码发送通知可关闭
 
 ## 文档
 
@@ -74,30 +79,58 @@ Ninja 仅支持 qinglong 2.8+
    cd /ql/ninja/backend
    pnpm install
    pm2 start
+   cp sendNotify.js /ql/scripts/sendNotify.js
    ```
 
-3. 将以下内容粘贴到 `extra.sh`（重启后自动启动 Ninja）
+3. 将以下内容粘贴到 `extra.sh`（重启后自动更新并启动 Ninja）
 
    ```bash
    cd /ql/ninja/backend
+   git pull -f
+   pnpm install
    pm2 start
+   cp sendNotify.js /ql/scripts/sendNotify.js
    ```
+
+## Ninja 环境变量
+
+目前支持的环境变量有：
+
+- `ALLOW_ADD`: 是否允许添加账号 不允许添加时则只允许已有账号登录（默认 `true`）
+- `ALLOW_NUM`: 允许添加账号的最大数量（默认 `40`）
+
+配置方式：
+
+```bash
+cd /ql/ninja/backend
+cp .env.example .env
+vi .env
+pm2 start
+```
+
+**修改完成后需要 `pm2 start` 重启生效 ！！！**
+
+## sendNotify 环境变量
+
+**此环境变量在青龙中配置！！！**
+
+- `NOTIFY_SKIP_LIST`: 通知黑名单，使用 `&` 分隔，例如 `东东乐园&东东萌宠`;
 
 ## 注意事项
 
-* 重启后务必执行一次 `ql extra` 保证 Ninja 配置成功。
+- 重启后务必执行一次 `ql extra` 保证 Ninja 配置成功。
 
-* 更新 Ninja 只需要在**容器**中 `ninja/backend` 目录执行 `git pull` 然后 `pm2 start`
+- 更新 Ninja 只需要在**容器**中 `ninja/backend` 目录执行 `git pull` 然后 `pm2 start`
 
-* Qinglong 需要在登录状态（`auth.json` 中有 token）
+- Qinglong 需要在登录状态（`auth.json` 中有 token）
 
 ## 常见问题
 
-Q：为什么我 `git pull` 失败？
+Q：为什么我 `git pull` 失败？  
 A：一般是修改过文件，先运行一次 `git checkout .` 再 `git pull`。
 
-Q：为什么访问不了？
+Q：为什么访问不了？  
 A：一般为端口映射错误/失败，请自行检查配置文件。
 
-Q：为什么访问白屏？
+Q：为什么访问白屏？  
 A：使用现代的浏览器，而不是古代的。
