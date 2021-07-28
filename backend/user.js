@@ -174,7 +174,7 @@ module.exports = class User {
         this.eid = body.data._id;
         this.timestamp = body.data.timestamp;
         message = `添加成功，可以愉快的白嫖啦 ${this.nickName}`;
-        this.#sendNotify('Ninja 运行通知', `用户 ${this.nickName}(${decodeURIComponent(this.pt_pin)}) 已上线"`);
+        this.#sendNotify('Ninja 运行通知', `用户 ${this.nickName}(${decodeURIComponent(this.pt_pin)}) 已上线`);
       }
     } else {
       this.eid = env._id;
@@ -184,7 +184,7 @@ module.exports = class User {
       }
       this.timestamp = body.data.timestamp;
       message = `欢迎回来，${this.nickName}`;
-      this.#sendNotify('Ninja 运行通知', `用户 ${this.nickName}(${decodeURIComponent(this.pt_pin)}) 已更新 CK"`);
+      this.#sendNotify('Ninja 运行通知', `用户 ${this.nickName}(${decodeURIComponent(this.pt_pin)}) 已更新 CK`);
     }
     return {
       nickName: this.nickName,
@@ -244,7 +244,7 @@ module.exports = class User {
     if (body.code !== 200) {
       throw new UserError(body.message || '删除账户错误，请重试', 240, body.code || 200);
     }
-    this.#sendNotify('Ninja 运行通知', `用户 ${this.nickName}(${decodeURIComponent(this.pt_pin)}) 删号跑路了"`);
+    this.#sendNotify('Ninja 运行通知', `用户 ${this.nickName}(${decodeURIComponent(this.pt_pin)}) 删号跑路了`);
     return {
       message: '账户已移除',
     };
