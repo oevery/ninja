@@ -132,7 +132,7 @@ pm2 start
 ## 常见问题
 
 Q：为什么我 `git pull` 失败？  
-A：一般是修改过文件，先运行一次 `git checkout .` 再 `git pull`。
+A：一般是修改过文件，先运行一次 `git checkout .` 再 `git pull`。还是不行就删了重拉。
 
 Q：为什么访问不了？  
 A：一般为端口映射错误/失败，请自行检查配置文件。
