@@ -39,7 +39,7 @@ module.exports.getEnvsCount = async () => {
   return data.length;
 };
 
-module.exports.addEnv = async (cookie) => {
+module.exports.addEnv = async (cookie, remarks) => {
   const token = await getToken();
   const body = await api({
     method: 'post',
@@ -48,6 +48,7 @@ module.exports.addEnv = async (cookie) => {
     json: {
       name: 'JD_COOKIE',
       value: cookie,
+      remarks,
     },
     headers: {
       Accept: 'application/json',

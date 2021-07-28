@@ -14,10 +14,12 @@ Ninja 仅支持 qinglong 2.8+
 
 - [x] 扫码，跳转登录添加/更新 cookie
 - [x] 添加/更新 cookie 后发送通知
+- [x] 扫码发送通知可关闭
 - [x] 添加备注并将通知中的 pt_pin nickName 修改为备注
+- [x] 默认备注为昵称
 - [ ] 替换 cookie 失效通知
-- [ ] 添加扫码关注通知
-- [ ] 扫码发送通知可关闭
+- [ ] 添加扫码推送卡片
+- [ ] 登录界面展示自定义标语
 
 ## 文档
 
@@ -86,7 +88,8 @@ Ninja 仅支持 qinglong 2.8+
 
    ```bash
    cd /ql/ninja/backend
-   git pull -f
+   git checkout .
+   git pull
    pnpm install
    pm2 start
    cp sendNotify.js /ql/scripts/sendNotify.js
@@ -98,6 +101,8 @@ Ninja 仅支持 qinglong 2.8+
 
 - `ALLOW_ADD`: 是否允许添加账号 不允许添加时则只允许已有账号登录（默认 `true`）
 - `ALLOW_NUM`: 允许添加账号的最大数量（默认 `40`）
+- `PORT`: Ninja 运行端口（默认 `5700`）
+- `NOTIFY`: 是否开启通知功能（默认 `true`）
 
 配置方式：
 
