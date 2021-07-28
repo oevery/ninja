@@ -18,7 +18,7 @@ Ninja 仅支持 qinglong 2.8+
 
 1. 容器映射 5701 端口，ninja 目录至宿主机
 
-   例：
+   例（docker-compose）：
 
    ```diff
    version: "3"
@@ -43,11 +43,31 @@ Ninja 仅支持 qinglong 2.8+
          - ./scripts:/ql/scripts
          - ./jbot:/ql/jbot
    +      - ./ninja:/ql/ninja
-       labels:
-         - com.centurylinklabs.watchtower.enable=false
+   ```
+
+   例（docker-run）：
+
+   ```diff
+   docker run -dit \
+     -v $PWD/ql/config:/ql/config \
+     -v $PWD/ql/log:/ql/log \
+     -v $PWD/ql/db:/ql/db \
+     -v $PWD/ql/repo:/ql/repo \
+     -v $PWD/ql/raw:/ql/raw \
+     -v $PWD/ql/scripts:/ql/scripts \
+     -v $PWD/ql/jbot:/ql/jbot \
+   + -v $PWD/ql/ninja:/ql/ninja \
+     -p 5700:5700 \
+   + -p 5701:5701 \
+     --name qinglong \
+     --hostname qinglong \
+     --restart unless-stopped \
+     whyour/qinglong:latest
    ```
 
 2. 进容器内执行以下命令
+
+   **进容器内执行以下命令**
 
    ```bash
    git clone https://github.com/MoonBegonia/ninja.git /ql/ninja
@@ -56,7 +76,7 @@ Ninja 仅支持 qinglong 2.8+
    pm2 start
    ```
 
-3. 将一下内容粘贴到 `extra.sh`
+3. 将以下内容粘贴到 `extra.sh`（重启后自动启动 Ninja）
 
    ```bash
    cd /ql/ninja/backend
@@ -67,6 +87,17 @@ Ninja 仅支持 qinglong 2.8+
 
 * 重启后务必执行一次 `ql extra` 保证 Ninja 配置成功。
 
-* 更新 Ninja 只需要在容器中 `ninja/backend` 目录执行 `git pull` 然后 `pm2 start`
+* 更新 Ninja 只需要在**容器**中 `ninja/backend` 目录执行 `git pull` 然后 `pm2 start`
 
 * Qinglong 需要在登录状态（`auth.json` 中有 token）
+
+## 常见问题
+
+Q：为什么我 `git pull` 失败？
+A：一般是修改过文件，先运行一次 `git checkout .` 再 `git pull`。
+
+Q：为什么访问不了？
+A：一般为端口映射错误/失败，请自行检查配置文件。
+
+Q：为什么访问白屏？
+A：使用现代的浏览器，而不是古代的。
