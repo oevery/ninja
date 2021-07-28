@@ -48,7 +48,7 @@ module.exports = class User {
       this.pt_key = cookie.match(/pt_key=(.*?);/)[1];
     }
 
-    if (this.remarks) {
+    if (remarks) {
       this.remark = remarks.match(/remark=(.*?);/) && remarks.match(/remark=(.*?);/)[1];
     }
   }
