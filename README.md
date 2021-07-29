@@ -17,8 +17,8 @@ Ninja 仅支持 qinglong 2.8+
 - [x] 扫码发送通知可关闭
 - [x] 添加备注并将通知中的 pt_pin nickName 修改为备注
 - [x] 默认备注为昵称
+- [x] 添加扫码推送卡片
 - [ ] 替换 cookie 失效通知
-- [ ] 添加扫码推送卡片
 - [ ] 登录界面展示自定义标语
 - [ ] 支持多容器，多面板
 - [ ] 采用自己的数据库，实现无视面板替换通知备注
@@ -119,11 +119,17 @@ pm2 start
 
 **修改完成后需要 `pm2 start` 重启生效 ！！！**
 
-## sendNotify 环境变量
+## SendNotify 环境变量
 
 **此环境变量在青龙中配置！！！**
 
 - `NOTIFY_SKIP_LIST`: 通知黑名单，使用 `&` 分隔，例如 `东东乐园&东东萌宠`;
+
+## Ninja 自定义
+
+自定义推送二维码：将 `push.jpg` 文件添加到 `/ql/ninja/backend/static/` 目录下刷新网页即可。
+
+自定义常见活动：修改 `/ql/backend/static/activity.json` 即可
 
 ## 注意事项
 

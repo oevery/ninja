@@ -14,14 +14,8 @@ const router = new Router();
 
 const handler = async (ctx, next) => {
   try {
-    ctx.body = {
-      code: undefined,
-      data: undefined,
-      message: '',
-    };
     await next();
-    ctx.body.code = ctx.body.code || ctx.status;
-    if (ctx.body.data?.message) {
+    if (ctx.body?.data.message) {
       ctx.body.message = ctx.body.data.message;
       ctx.body.data.message = undefined;
     }
@@ -52,18 +46,20 @@ router.get('/api/status', (ctx) => {
 
 router.get('/api/info', async (ctx) => {
   const data = await User.getPoolInfo();
-  ctx.body.data = data;
+  ctx.body = { data };
 });
 
 router.get('/api/qrcode', async (ctx) => {
   const user = new User({});
   await user.getQRConfig();
-  ctx.body.data = {
-    token: user.token,
-    okl_token: user.okl_token,
-    cookies: user.cookies,
-    QRCode: user.QRCode,
-    ua: user.ua,
+  ctx.body = {
+    data: {
+      token: user.token,
+      okl_token: user.okl_token,
+      cookies: user.cookies,
+      QRCode: user.QRCode,
+      ua: user.ua,
+    },
   };
 });
 
@@ -71,14 +67,14 @@ router.post('/api/check', body(), async (ctx) => {
   const body = ctx.request.body;
   const user = new User(body);
   const data = await user.checkQRLogin();
-  ctx.body.data = data;
+  ctx.body = { data };
 });
 
 router.post('/api/cklogin', body(), async (ctx) => {
   const body = ctx.request.body;
   const user = new User(body);
   const data = await user.CKLogin();
-  ctx.body.data = data;
+  ctx.body = { data };
 });
 
 router.get('/api/userinfo', async (ctx) => {
@@ -86,7 +82,7 @@ router.get('/api/userinfo', async (ctx) => {
   const eid = query.eid;
   const user = new User({ eid });
   const data = await user.getUserInfoByEid();
-  ctx.body.data = data;
+  ctx.body = { data };
 });
 
 router.post('/api/delaccount', body(), async (ctx) => {
@@ -94,7 +90,7 @@ router.post('/api/delaccount', body(), async (ctx) => {
   const eid = body.eid;
   const user = new User({ eid });
   const data = await user.delUserByEid();
-  ctx.body.data = data;
+  ctx.body = { data };
 });
 
 router.post('/api/update/remark', body(), async (ctx) => {
@@ -103,13 +99,13 @@ router.post('/api/update/remark', body(), async (ctx) => {
   const remark = body.remark;
   const user = new User({ eid, remark });
   const data = await user.updateRemark();
-  ctx.body.data = data;
+  ctx.body = { data };
 });
 
 router.get('/api/users', async (ctx) => {
   if (ctx.host.startsWith('localhost')) {
     const data = await User.getUsers();
-    ctx.body.data = data;
+    ctx.body = { data };
   } else {
     ctx.body = {
       code: 401,
