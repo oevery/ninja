@@ -57,7 +57,7 @@ module.exports = class User {
   }
 
   async getQRConfig() {
-    this.ua = this.ua || process.env.UA || GET_RANDOM_TIME_UA();
+    this.ua = this.ua || process.env.NINJA_UA || GET_RANDOM_TIME_UA();
     const taskUrl = `https://plogin.m.jd.com/cgi-bin/mm/new_login_entrance?lang=chs&appid=300&returnurl=https://wq.jd.com/passport/LoginRedirect?state=${Date.now()}&returnurl=https://home.m.jd.com/myJd/newhome.action?sceneval=2&ufc=&/myJd/home.action&source=wq_passport`;
     const response = await api({
       url: taskUrl,
@@ -310,7 +310,7 @@ module.exports = class User {
   }
 
   #sendNotify(title, content) {
-    const notify = process.env.NOTIFY || true;
+    const notify = process.env.NINJA_NOTIFY || true;
     if (!notify) {
       console.log('Ninja 通知已关闭\n' + title + '\n' + content + '\n' + '已跳过发送');
       return;

@@ -104,9 +104,9 @@ Ninja 仅支持 qinglong 2.8+
 
 - `ALLOW_ADD`: 是否允许添加账号 不允许添加时则只允许已有账号登录（默认 `true`）
 - `ALLOW_NUM`: 允许添加账号的最大数量（默认 `40`）
-- `PORT`: Ninja 运行端口（默认 `5701`）
-- `NOTIFY`: 是否开启通知功能（默认 `true`）
-- `UA`: 自定义 UA，默认为随机
+- `NINJA_PORT`: Ninja 运行端口（默认 `5701`）
+- `NINJA_NOTIFY`: 是否开启通知功能（默认 `true`）
+- `NINJA_UA`: 自定义 UA，默认为随机
 
 配置方式：
 

@@ -118,6 +118,6 @@ router.get('/api/users', async (ctx) => {
   }
 });
 
-const port = process.env.PORT || 5701;
+const port = process.env.NINJA_PORT || 5701;
 console.log('Start Ninja success! listening port: ' + port);
 app.listen(port);
