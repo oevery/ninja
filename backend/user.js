@@ -173,7 +173,7 @@ module.exports = class User {
         }
         this.eid = body.data._id;
         this.timestamp = body.data.timestamp;
-        message = `添加成功，可以愉快的白嫖啦 ${this.nickName}`;
+        message = `添加成功 ${this.nickName}`;
         this.#sendNotify('Ninja 运行通知', `用户 ${this.nickName}(${decodeURIComponent(this.pt_pin)}) 已上线`);
       }
     } else {
