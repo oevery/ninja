@@ -1,5 +1,9 @@
 <template>
   <div class="content">
+    <div class="wxtip" id="JweixinTip" @click="setTipDisplayStyle('none')">
+      <span class="wxtip-icon"></span>
+      <p class="wxtip-txt">点击右上角<br/>选择在浏览器中打开</p>
+    </div>
     <div class="card">
       <div class="card-header">
         <div class="flex items-center justify-between">
@@ -108,8 +112,22 @@ export default {
     }
 
     const jumpLogin = async () => {
+       var isWeixin = !!/MicroMessenger/i.test(navigator.userAgent);
+      if(isWeixin){
+        setTipDisplayStyle('block');
+        return;
+      }
       const href = `openapp.jdmobile://virtual/ad?params={"category":"jump","des":"ThirdPartyLogin","action":"to","onekeylogin":"return","url":"https://plogin.m.jd.com/cgi-bin/m/tmauth?appid=300&client_type=m&token=${data.token}","authlogin_returnurl":"weixin://","browserlogin_fromurl":"${window.location.host}"}`
       window.location.href = href
+    }
+
+    const isMobile = async () => {
+      let flag = navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i)
+      return flag; 
+    }
+
+    const setTipDisplayStyle = async (stat) => {
+      document.getElementById('JweixinTip').style.display= stat;
     }
 
     const ckeckLogin = async () => {
@@ -173,10 +191,17 @@ export default {
       showQrcode,
       ckeckLogin,
       jumpLogin,
+      isMobile,
+      setTipDisplayStyle,
       CKLogin,
     }
   },
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+/*核心css*/
+.wxtip{background: rgba(0,0,0,0.8); text-align: center; position: fixed; left:0; top: 0; width: 100%; height: 100%; z-index: 9999; display: none;}
+.wxtip-icon{width: 52px; height: 67px; background: url(../assets/weixin-tip.png) no-repeat; display: block; position: absolute; right: 30px; top: 20px;}
+.wxtip-txt{padding-top: 107px; color: #fff; font-size: 16px; line-height: 1.5;}
+</style>
