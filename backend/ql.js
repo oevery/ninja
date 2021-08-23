@@ -45,11 +45,11 @@ module.exports.addEnv = async (cookie, remarks) => {
     method: 'post',
     url: 'api/envs',
     params: { t: Date.now() },
-    json: {
+    json: [{
       name: 'JD_COOKIE',
       value: cookie,
       remarks,
-    },
+    }],
     headers: {
       Accept: 'application/json',
       authorization: `Bearer ${token}`,
