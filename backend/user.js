@@ -171,8 +171,8 @@ module.exports = class User {
         if (body.code !== 200) {
           throw new UserError(body.message || '添加账户错误，请重试', 220, body.code || 200);
         }
-        this.eid = body.data._id;
-        this.timestamp = body.data.timestamp;
+        this.eid = body.data[0]._id;
+        this.timestamp = body.data[0].timestamp;
         message = `注册成功，${this.nickName}`;
         this.#sendNotify('Ninja 运行通知', `用户 ${this.nickName}(${decodeURIComponent(this.pt_pin)}) 已上线`);
       }
