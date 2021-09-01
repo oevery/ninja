@@ -153,6 +153,7 @@ export default {
         if (body.code === 200 && body.data.eid) {
           localStorage.setItem('eid', body.data.eid)
           ElMessage.success(body.message)
+          router.push('/')
         } else {
           ElMessage.error(body.message || 'cookie 解析失败，请检查后重试！')
         }
