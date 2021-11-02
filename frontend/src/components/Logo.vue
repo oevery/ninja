@@ -1,5 +1,5 @@
 <template>
-<img class="NinjaLogo" src="@/assets/logo.png" alt="logo">
+  <img class="NinjaLogo" src="@/assets/logo.png" alt="logo" />
 </template>
 
 <style>

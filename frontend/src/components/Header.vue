@@ -3,19 +3,15 @@
     <div class="header-wrapper">
       <div class="flex items-center">
         <Logo class="h-10 w-10" />
-        <p class="pl-3 select-none">Ninja</p>
+        <p class="pl-3 select-none">{{ store.state.info.title }}</p>
       </div>
     </div>
   </div>
 </template>
 
-<script>
-import Logo from '@/components/Logo.vue'
-export default {
-  components: {
-    Logo,
-  },
-}
+<script setup>
+import Logo from '@/components/Logo.vue';
+import store from '@/store.js';
 </script>
 
 <style scoped>

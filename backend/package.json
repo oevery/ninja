@@ -1,22 +1,31 @@
 {
-  "version": "1.1.1",
+  "name": "backend2",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "directories": {
+    "test": "test"
+  },
   "scripts": {
-    "dev": "nodemon app.js"
+    "test": "tap \"test/**/*.test.js\"",
+    "start": "fastify start -l info app.js",
+    "dev": "fastify start -w -l info --ignore-watch='node_modules .git logs db' -P app.js"
   },
-  "engines": {
-    "node": ">=14"
-  },
+  "type": "module",
   "dependencies": {
-    "@koa/cors": "^3.1.0",
-    "@koa/router": "^10.1.0",
-    "axios": "^0.21.1",
-    "dotenv": "^10.0.0",
+    "fastify": "^3.22.1",
+    "fastify-autoload": "^3.9.0",
+    "fastify-cli": "^2.13.0",
+    "fastify-cors": "^6.0.2",
+    "fastify-jwt": "^3.2.1",
+    "fastify-plugin": "^3.0.0",
+    "fastify-sensible": "^3.1.1",
     "got": "^11.8.2",
-    "koa": "^2.13.1",
-    "koa-body": "^4.2.0",
-    "koa-log4": "^2.3.2",
-    "koa-static": "^5.0.0",
-    "nodemon": "^2.0.12",
-    "qrcode": "^1.4.4"
+    "lodash": "^4.17.21",
+    "lowdb": "^3.0.0",
+    "nanoid": "^3.1.30"
+  },
+  "devDependencies": {
+    "tap": "^15.0.10"
   }
 }

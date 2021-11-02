@@ -1,119 +1,77 @@
-'use strict';
+import AutoLoad from 'fastify-autoload';
+import cors from 'fastify-cors';
+import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
 
-const Koa = require('koa');
-const cors = require('@koa/cors');
-const Router = require('@koa/router');
-const body = require('koa-body');
-const serve = require('koa-static');
-const User = require('./user');
-const packageJson = require('./package.json');
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
-// Create express instance
-const app = new Koa();
-const router = new Router();
+/**
+ * @param {import("fastify").FastifyInstance} fastify
+ * @param {*} opts
+ */
+export default async function (fastify, opts) {
+  fastify.setErrorHandler(async (error, request, reply) => {
+    const code = error.code || error.statusCode || 500;
+    reply.code(code).send({ code, message: error.message, err_code: error.err_code });
+    fastify.log.error(error.message);
+  });
 
-const handler = async (ctx, next) => {
-  try {
-    await next();
-    if (ctx.body?.data.message) {
-      ctx.body.message = ctx.body.data.message;
-      ctx.body.data.message = undefined;
-    }
-  } catch (err) {
-    console.log(err);
-    ctx.status = err.statusCode || err.status || 500;
-    ctx.body = {
-      code: err.status || err.statusCode || 500,
-      message: err.message,
-    };
-  }
-};
+  fastify.setNotFoundHandler((request, reply) => {
+    reply.code(404).send({ code: 404, message: 'Not found' });
+  });
 
-app.use(serve('static'));
-app.use(cors());
-app.use(handler);
-app.use(router.routes()).use(router.allowedMethods());
-
-router.get('/api/status', (ctx) => {
-  ctx.body = {
-    code: 200,
-    data: {
-      version: packageJson.version,
-    },
-    message: 'Ninja is already.',
-  };
-});
-
-router.get('/api/info', async (ctx) => {
-  const data = await User.getPoolInfo();
-  ctx.body = { data };
-});
-
-router.get('/api/qrcode', async (ctx) => {
-  const user = new User({});
-  await user.getQRConfig();
-  ctx.body = {
-    data: {
-      token: user.token,
-      okl_token: user.okl_token,
-      cookies: user.cookies,
-      QRCode: user.QRCode,
-      ua: user.ua,
+  opts = {
+    schema: {
+      response: {
+        200: {
+          type: 'object',
+          properties: {
+            code: {
+              type: 'integer',
+              default: 200,
+            },
+            message: {
+              type: 'string',
+            },
+            data: {},
+          },
+        },
+      },
     },
   };
-});
 
-router.post('/api/check', body(), async (ctx) => {
-  const body = ctx.request.body;
-  const user = new User(body);
-  const data = await user.checkQRLogin();
-  ctx.body = { data };
-});
+  // Place here your custom code!
 
-router.post('/api/cklogin', body(), async (ctx) => {
-  const body = ctx.request.body;
-  const user = new User(body);
-  const data = await user.CKLogin();
-  ctx.body = { data };
-});
+  // Do not touch the following lines
 
-router.get('/api/userinfo', async (ctx) => {
-  const query = ctx.query;
-  const eid = query.eid;
-  const user = new User({ eid });
-  const data = await user.getUserInfoByEid();
-  ctx.body = { data };
-});
+  // This loads all plugins defined in plugins
+  // those should be support plugins that are reused
+  // through your application
+  fastify.register(AutoLoad, {
+    dir: join(__dirname, 'plugins'),
+    options: Object.assign({}, opts),
+  });
 
-router.post('/api/delaccount', body(), async (ctx) => {
-  const body = ctx.request.body;
-  const eid = body.eid;
-  const user = new User({ eid });
-  const data = await user.delUserByEid();
-  ctx.body = { data };
-});
+  // This loads all plugins defined in routes
+  // define your routes in one of these
+  fastify.register(AutoLoad, {
+    dir: join(__dirname, 'routes'),
+    options: Object.assign({ prefix: '/api' }, opts),
+  });
 
-router.post('/api/update/remark', body(), async (ctx) => {
-  const body = ctx.request.body;
-  const eid = body.eid;
-  const remark = body.remark;
-  const user = new User({ eid, remark });
-  const data = await user.updateRemark();
-  ctx.body = { data };
-});
-
-router.get('/api/users', async (ctx) => {
-  if (ctx.host.startsWith('localhost')) {
-    const data = await User.getUsers();
-    ctx.body = { data };
-  } else {
-    ctx.body = {
-      code: 401,
-      message: '该接口仅能通过 localhost 访问',
+  // cors
+  fastify.register(cors, function (instance) {
+    return (req, callback) => {
+      let corsOptions;
+      const origin = req.headers.origin;
+      // do not include CORS headers for requests from localhost
+      const regex = new RegExp(`localhost:${process.env.FASTIFY_PORT}|127.0.0.1:${process.env.FASTIFY_PORT}`);
+      if (regex.test(origin)) {
+        corsOptions = { origin: false };
+      } else {
+        corsOptions = { origin: true };
+      }
+      callback(null, corsOptions); // callback expects two parameters: error and options
     };
-  }
-});
-
-const port = process.env.NINJA_PORT || 5701;
-console.log('Start Ninja success! listening port: ' + port);
-app.listen(port);
+  });
+}

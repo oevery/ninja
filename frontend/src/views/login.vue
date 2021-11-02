@@ -1,182 +1,132 @@
 <template>
   <div class="content">
-    <div class="card">
-      <div class="card-header">
-        <div class="flex items-center justify-between">
-          <p class="card-title">扫码登录</p>
-          <span
-            class="ml-2 px-2 py-1 bg-gray-200 rounded-full font-normal text-xs"
-            >余量：{{ marginCount }}</span
-          >
+    <el-skeleton v-if="store.state.info.notice.show" :loading="loading" animated class="card p-4">
+      <template #default>
+        <div class="card">
+          <div class="card-header">
+            <p class="card-title">{{ store.state.info.notice.title }}</p>
+          </div>
+          <div class="card-body text-base leading-6" v-html="store.state.info.notice.content"></div>
         </div>
-        <span class="card-subtitle">
-          请点击下方按钮登录，点击按钮后回到本网站查看是否登录成功，京东的升级提示不用管。
-        </span>
-      </div>
-      <div class="card-body text-center">
-        <div v-if="!qrCodeVisibility" class="flex flex-col w-48 m-auto mt-4">
-          <el-button type="primary" round @click="showQrcode"
-            >扫描二维码登录</el-button
-          >
-          <el-button class="mt-4 ml-0" type="primary" round @click="jumpLogin"
-            >跳转到京东 App 登录</el-button
-          >
-        </div>
-        <img v-else :src="QRCode" :width="256" class="m-auto" />
-      </div>
-      <div class="card-footer"></div>
-    </div>
+      </template>
+    </el-skeleton>
 
-    <div class="card hidden">
-      <div class="card-header">
-        <div class="flex items-center justify-between">
-          <p class="card-title">CK 登录</p>
+    <el-skeleton :loading="loading" animatedn class="card p-4">
+      <template #default>
+        <div class="relative">
           <span
-            class="ml-2 px-2 py-1 bg-gray-200 rounded-full font-normal text-xs"
-            >余量：{{ marginCount }}</span
-          >
+            class="absolute z-50 top-2 right-3 px-2 py-1 bg-gray-200 rounded-full font-normal text-xs"
+          >余量：{{ available }}</span>
+          <el-tabs type="border-card" class="card">
+            <el-tab-pane label="Cookie">
+              <div class="card-header">
+                <span class="card-subtitle">
+                  {{
+                    store.state.info.login_notice.cookie
+                  }}
+                </span>
+              </div>
+              <div class="card-body text-center">
+                <el-input v-model="cookie" size="small" clearable class="my-4 w-full" />
+                <el-button type="primary" size="small" round @click="loginCookie">登录</el-button>
+              </div>
+              <div class="card-footer"></div>
+            </el-tab-pane>
+
+            <!-- <el-tab-pane label="Wskey">
+            <div class="card-header">
+              <span class="card-subtitle">{{
+                store.state.info.login_notice.wskey
+              }}</span>
+            </div>
+            <div class="card-body text-center">
+              <el-input
+                v-model="wskey"
+                size="small"
+                clearable
+                class="my-4 w-full"
+              />
+              <el-button type="primary" size="small" round @click="loginWskey"
+                >登录</el-button
+              >
+            </div>
+            <div class="card-footer"></div>
+            </el-tab-pane>-->
+          </el-tabs>
         </div>
-        <span class="card-subtitle"> 请在下方输入您的 cookie 登录。 </span>
-      </div>
-      <div class="card-body text-center">
-        <el-input v-model="cookie" size="small" clearable class="my-4 w-full" />
-        <el-button type="primary" size="small" round @click="CKLogin"
-          >登录</el-button
-        >
-      </div>
-      <div class="card-footet"></div>
-    </div>
+      </template>
+    </el-skeleton>
   </div>
 </template>
 
-<script>
-import { onMounted, reactive, toRefs } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+<script setup>
+import { getStatusApi } from '@/api/common'
+import { LoginCookieApi } from '@/api/user'
+import store from '@/store'
 import { ElMessage } from 'element-plus'
-import {
-  getInfoAPI,
-  getQrcodeAPI,
-  CKLoginAPI,
-  checkLoginAPI,
-} from '@/api/index'
+import { onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
 
-export default {
-  setup() {
-    const router = useRouter()
-    const route = useRoute()
+const router = useRouter()
 
-    let data = reactive({
-      marginCount: 0,
-      allowAdd: true,
-      cookie: '',
-      QRCode: undefined,
-      qrCodeVisibility: false,
-      token: undefined,
-      okl_token: undefined,
-      cookies: undefined,
-      timer: undefined,
-      waitLogin: false,
-    })
-
-    const getInfo = async () => {
-      const info = (await getInfoAPI()).data
-      data.marginCount = info.marginCount
-      data.allowAdd = info.allowAdd
-    }
-
-    const getQrcode = async () => {
-      try {
-        const body = await getQrcodeAPI()
-        data.token = body.data.token
-        data.okl_token = body.data.okl_token
-        data.cookies = body.data.cookies
-        data.QRCode = body.data.QRCode
-        if (data.QRCode) {
-          // data.qrCodeVisibility = true
-          data.waitLogin = true
-          clearInterval(data.timer) // 清除定时器
-          data.timer = setInterval(ckeckLogin, 3000) // 设置定时器
-        }
-      } catch (e) {
-        console.error(e)
-        ElMessage.error('生成二维码失败！请重试或放弃')
-      }
-    }
-
-    const showQrcode = async () => {
-      data.qrCodeVisibility = true
-    }
-
-    const jumpLogin = async () => {
-      const href = `openapp.jdmobile://virtual/ad?params={"category":"jump","des":"ThirdPartyLogin","action":"to","onekeylogin":"return","url":"https://plogin.m.jd.com/cgi-bin/m/tmauth?appid=300&client_type=m&token=${data.token}","authlogin_returnurl":"weixin://","browserlogin_fromurl":"${window.location.host}"}`
-      window.location.href = href
-    }
-
-    const ckeckLogin = async () => {
-      try {
-        const body = await checkLoginAPI({
-          token: data.token,
-          okl_token: data.okl_token,
-          cookies: data.cookies,
-        })
-
-        switch (body?.data.errcode) {
-          case 0:
-            localStorage.setItem('eid', body.data.eid)
-            ElMessage.success(body.message)
-            clearInterval(data.timer)
-            router.push('/')
-            break
-          case 176:
-            break
-          default:
-            ElMessage.error(body.message)
-            data.waitLogin = false
-            clearInterval(data.timer)
-            break
-        }
-      } catch (error) {
-        clearInterval(data.timer)
-        data.waitLogin = false
-      }
-    }
-
-    const CKLogin = async () => {
-      const ptKey =
-        data.cookie.match(/pt_key=(.*?);/) &&
-        data.cookie.match(/pt_key=(.*?);/)[1]
-      const ptPin =
-        data.cookie.match(/pt_pin=(.*?);/) &&
-        data.cookie.match(/pt_pin=(.*?);/)[1]
-      if (ptKey && ptPin) {
-        const body = await CKLoginAPI({ pt_key: ptKey, pt_pin: ptPin })
-        if (body.code === 200 && body.data.eid) {
-          localStorage.setItem('eid', body.data.eid)
-          ElMessage.success(body.message)
-        } else {
-          ElMessage.error(body.message || 'cookie 解析失败，请检查后重试！')
-        }
-      } else {
-        ElMessage.error('cookie 解析失败，请检查后重试！')
-      }
-    }
-
-    onMounted(() => {
-      getInfo()
-      getQrcode()
-    })
-
-    return {
-      ...toRefs(data),
-      getInfo,
-      getQrcode,
-      showQrcode,
-      ckeckLogin,
-      jumpLogin,
-      CKLogin,
-    }
-  },
+// get status
+const loading = ref(true)
+const available = ref(0)
+const enable = ref(true)
+async function getStatus() {
+  try {
+    const {data} = await getStatusApi()
+    available.value = data.available
+    enable.value = data.enable
+    loading.value = false
+  } catch (error) {
+    console.log(error)
+    loading.value = false
+  }
 }
+
+// ck login
+const cookie = ref('')
+async function loginCookie() {
+  const ptKey =
+    cookie.value.match(/pt_key=(.*?);/) &&
+    cookie.value.match(/pt_key=(.*?);/)[1]
+  const ptPin =
+    cookie.value.match(/pt_pin=(.*?);/) &&
+    cookie.value.match(/pt_pin=(.*?);/)[1]
+  if (ptKey && ptPin) {
+    const { data, message } = await LoginCookieApi({
+      pt_key: ptKey,
+      pt_pin: ptPin,
+    })
+    if (data.id && data.token) {
+      store.setUserAction(data)
+      ElMessage.success(message)
+      setTimeout(() => {
+        router.push({
+          path: '/',
+        })
+      }, 2000)
+    }
+  } else {
+    ElMessage.error('cookie 解析失败，请检查后重试！')
+  }
+}
+
+// wskey login
+const wskey = ref('')
+const loginWskey = async () => {
+  if (wskey.value !== '') {
+  }
+}
+
+onMounted(() => {
+  getStatus()
+})
 </script>
 
-<style scoped></style>
+<style scoped>
+.card :deep() .el-tabs__content {
+  padding: 0;
+}
+</style>

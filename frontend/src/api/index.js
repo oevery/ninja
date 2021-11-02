@@ -1,31 +1,37 @@
+import store from '@/store'
+import { ElMessage } from 'element-plus'
 import ky from 'ky'
 
 const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api'
 
-const api = ky.create({ prefixUrl: VITE_API_BASE_URL, retry: { limit: 0 } })
+const api = ky.extend({
+  prefixUrl: VITE_API_BASE_URL,
+  retry: { limit: 0 },
+  hooks: {
+    beforeRequest: [
+      (request) => {
+        if (request.headers.get('Authorization')) {
+          return
+        }
+        const token = store.state.user.token
+        if (token) {
+          request.headers.set('Authorization', `Bearer ${token}`)
+        }
+      },
+    ],
+    afterResponse: [
+      async (request, options, response) => {
+        if (response.status !== 200) {
+          const { message } = await response.json()
+          ElMessage.error(message)
+        }
+        if (response.status === 401) {
+          store.removeUserAction()
+          window.location.href = '/login'
+        }
+      },
+    ],
+  },
+})
 
-export function getInfoAPI() {
-  return api.get('info').json()
-}
-
-export function CKLoginAPI(body) {
-  return api.post('cklogin', { json: body }).json()
-}
-
-export function getQrcodeAPI() {
-  return api.get('qrcode').json()
-}
-
-export function checkLoginAPI(body) {
-  return api.post('check', { json: body }).json()
-}
-
-export function getUserInfoAPI(eid) {
-  const searchParams = new URLSearchParams()
-  searchParams.set('eid', eid)
-  return api.get('userinfo', { searchParams: searchParams }).json()
-}
-
-export function delAccountAPI(body) {
-  return api.post('delaccount', { json: body }).json()
-}
+export default api

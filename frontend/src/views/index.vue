@@ -1,33 +1,72 @@
 <template>
   <div class="content">
-    <div class="card">
+    <div class="card-no-shodow">
       <div class="card-header">
         <p class="card-title">个人中心</p>
       </div>
       <div class="card-body">
         <p>昵称：{{ nickName }}</p>
-        <p>更新时间：{{ timestamp }}</p>
+        <p>更新时间：{{ updated_at }}</p>
       </div>
       <div class="card-footer">
         <el-button size="small" auto @click="logout">退出登录</el-button>
-        <el-button type="danger" size="small" auto @click="delAccount"
-          >删除账号</el-button
-        >
+        <el-button type="danger" size="small" auto @click="delAccount">删除账号</el-button>
       </div>
     </div>
 
-    <div class="card">
+    <div class="card-no-shodow">
+      <div class="card-header">
+        <p class="card-title">变量管理</p>
+      </div>
+      <div class="card-body pl-0 pr-0">
+        <div class="p-4 flex justify-around">
+          <div>
+            <el-select v-model="currentEnv" placeholder="变量" size="small">
+              <el-option
+                v-for="env in envs"
+                :key="env.value"
+                :value="env.value"
+                :label="env.description"
+              ></el-option>
+            </el-select>
+          </div>
+          <el-input class="ml-3 mr-3" size="small"></el-input>
+          <el-button size="small">add</el-button>
+        </div>
+
+        <el-table :data="tableData" style="width: 100%">
+          <el-table-column prop="name" label="名称" width="120px" align="center" />
+          <el-table-column prop="value" label="值" min-width="200px" show-overflow-tooltip />
+          <el-table-column
+            prop="updated_at"
+            label="更新时间"
+            width="80px"
+            :formatter="formatDate"
+            align="center"
+          />
+          <el-table-column align="center" width="122px" label="操作">
+            <template #default="scope">
+              <el-icon color="#409EFF" size="20" class="mr-3 cursor-pointer" title="修改">
+                <edit />
+              </el-icon>
+              <el-icon color="#F56C6C" size="20" class="cursor-pointer" title="删除">
+                <delete />
+              </el-icon>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
+      <div class="card-footer"></div>
+    </div>
+
+    <div class="card-no-shodow">
       <div class="card-header">
         <p class="card-title">常见活动位置</p>
         <span class="card-subtitle">下面是一些常见活动的位置</span>
       </div>
       <div class="card-body">
         <ul>
-          <li
-            v-for="(item, index) in activity"
-            :key="index"
-            class="leading-normal"
-          >
+          <li v-for="(item, index) in activity" :key="index" class="leading-normal">
             <span>{{ item.name }}：</span>
             <span class="pr-2">{{ item.address }}</span>
             <a
@@ -35,8 +74,7 @@
               class="text-blue-400"
               href="#"
               @click="openUrlWithJD(item.href)"
-              >直达链接</a
-            >
+            >直达链接</a>
           </li>
         </ul>
       </div>
@@ -45,49 +83,61 @@
 </template>
 
 <script>
-import { getUserInfoAPI, delAccountAPI } from '@/api/index'
+import { getUsersApi, delUsersApi } from '@/api/user'
+import { getEnvsApi } from '@/api/env'
 import { onMounted, reactive, toRefs } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { Edit, Delete } from '@element-plus/icons'
+import store from '@/store'
+import dayjs from 'dayjs'
+import 'dayjs/locale/zh-cn'
+import relativeTime from 'dayjs/plugin/relativeTime'
 import { ElMessage } from 'element-plus'
+
 export default {
+  components: {
+    Edit,
+    Delete,
+  },
+
   setup() {
     const router = useRouter()
-    const route = useRoute()
 
     let data = reactive({
       nickName: undefined,
-      timestamp: undefined,
+      updated_at: undefined,
+      tableData: [],
+      envs: [],
+      currentEnv: '',
     })
 
     const getInfo = async () => {
-      const eid = localStorage.getItem('eid')
-      if (!eid) {
-        logout()
+      const json = await getUsersApi(store.state.user.id)
+      if (!json.data) {
+        ElMessage.error('获取用户信息失败，请刷新重试或重新登录')
         return
       }
-      const userInfo = await getUserInfoAPI(eid)
-      if (!userInfo) {
-        ElMessage.error('获取用户信息失败，请重重新登录')
-        logout()
-        return
-      }
-      data.nickName = userInfo.data.nickName
-      data.timestamp = new Date(userInfo.data.timestamp).toLocaleString()
+      data.nickName = json.data.nickname
+      data.updated_at = new Date(
+        json.data.updated_at || json.data.created_at
+      ).toLocaleString()
+      data.tableData = json.data.envs
     }
 
-    onMounted(getInfo)
+    const getEnvs = async () => {
+      const json = await getEnvsApi()
+      data.envs = json.data || []
+    }
 
     const logout = () => {
-      localStorage.removeItem('eid')
+
+      store.removeUserAction()
       router.push('/login')
     }
 
     const delAccount = async () => {
-      const eid = localStorage.getItem('eid')
-      const body = await delAccountAPI({ eid })
-      if (body.code !== 200) {
-        ElMessage.error(body.message)
-      } else {
+      const { code } = await delUsersApi(store.state.user.id)
+      if (code === 200) {
         ElMessage.success(body.message)
         setTimeout(() => {
           logout()
@@ -100,7 +150,12 @@ export default {
         `{"category":"jump","des":"m","action":"to","url":"${url}"}`
       )
       window.location.href = `openapp.jdmobile://virtual?params=${params}`
-      console.log(window.location.href)
+    }
+
+    dayjs.extend(relativeTime)
+    dayjs.locale('zh-cn')
+    const formatDate = (row, column, cellValue, index) => {
+      return dayjs(cellValue).fromNow()
     }
 
     const activity = [
@@ -159,13 +214,21 @@ export default {
       },
     ]
 
+    onMounted(() => {
+      getInfo()
+      getEnvs()
+    })
+
     return {
+      Edit,
+      Delete,
       ...toRefs(data),
       activity,
       getInfo,
       logout,
       delAccount,
       openUrlWithJD,
+      formatDate,
     }
   },
 }
