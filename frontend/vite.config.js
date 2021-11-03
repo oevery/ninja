@@ -6,6 +6,7 @@ import Components from 'unplugin-vue-components/vite'
 import { defineConfig } from 'vite'
 import AsyncCatch from 'vite-plugin-async-catch'
 import viteCompression from 'vite-plugin-compression'
+import WindiCSS from 'vite-plugin-windicss'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -16,6 +17,7 @@ export default defineConfig({
       resolvers: [ElementPlusResolver()],
     }),
     ElementPlus(),
+    WindiCSS(),
     viteCompression(),
   ],
   resolve: {
