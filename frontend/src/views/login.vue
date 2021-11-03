@@ -20,15 +20,11 @@
           <el-tabs type="border-card" class="card">
             <el-tab-pane label="Cookie">
               <div class="card-header">
-                <span class="card-subtitle">
-                  {{
-                    store.state.info.login_notice.cookie
-                  }}
-                </span>
+                <span class="card-subtitle">{{ store.state.info.login_notice.cookie }}</span>
               </div>
               <div class="card-body text-center">
                 <el-input v-model="cookie" size="small" clearable class="my-4 w-full" />
-                <el-button type="primary" size="small" round @click="loginCookie">登录</el-button>
+                <el-button :loading="logging" type="primary" size="small" round @click="loginCookie">登录</el-button>
               </div>
               <div class="card-footer"></div>
             </el-tab-pane>
@@ -63,11 +59,10 @@
 import { getStatusApi } from '@/api/common'
 import { LoginCookieApi } from '@/api/user'
 import store from '@/store'
+import { wait } from '@/utils/index'
 import { ElMessage } from 'element-plus'
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-
-const router = useRouter()
 
 // get status
 const loading = ref(true)
@@ -75,41 +70,49 @@ const available = ref(0)
 const enable = ref(true)
 async function getStatus() {
   try {
-    const {data} = await getStatusApi()
+    const { data } = await getStatusApi()
     available.value = data.available
     enable.value = data.enable
-    loading.value = false
   } catch (error) {
     console.log(error)
+  } finally {
     loading.value = false
   }
 }
 
+// login
+const logging = ref(false)
+
 // ck login
 const cookie = ref('')
 async function loginCookie() {
-  const ptKey =
-    cookie.value.match(/pt_key=(.*?);/) &&
-    cookie.value.match(/pt_key=(.*?);/)[1]
-  const ptPin =
-    cookie.value.match(/pt_pin=(.*?);/) &&
-    cookie.value.match(/pt_pin=(.*?);/)[1]
-  if (ptKey && ptPin) {
+  try {
+    const ptKey =
+      cookie.value.match(/pt_key=(.*?);/) &&
+      cookie.value.match(/pt_key=(.*?);/)[1]
+    const ptPin =
+      cookie.value.match(/pt_pin=(.*?);/) &&
+      cookie.value.match(/pt_pin=(.*?);/)[1]
+    if (!ptKey || !ptPin) {
+      throw new Error('cookie 格式错误')
+    }
+    logging.value = true
     const { data, message } = await LoginCookieApi({
       pt_key: ptKey,
       pt_pin: ptPin,
     })
-    if (data.id && data.token) {
-      store.setUserAction(data)
-      ElMessage.success(message)
-      setTimeout(() => {
-        router.push({
-          path: '/',
-        })
-      }, 2000)
+    if (!data.id || !data.token) {
+      throw new Error('登录失败，请重试或联系管理员')
     }
-  } else {
-    ElMessage.error('cookie 解析失败，请检查后重试！')
+    store.setUserAction(data)
+    ElMessage.success(message)
+    await wait(2000)
+    const router = useRouter()
+    router.push('/')
+  } catch (error) {
+    ElMessage.error(error.message)
+  } finally {
+    logging.value = false
   }
 }
 
