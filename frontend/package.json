@@ -19,7 +19,6 @@
     "unplugin-element-plus": "^0.1.3",
     "unplugin-vue-components": "0.17.0",
     "vite": "^2.6.13",
-    "vite-plugin-async-catch": "^0.1.8",
     "vite-plugin-compression": "^0.3.5",
     "vite-plugin-windicss": "^1.4.12",
     "windicss": "^3.2.1"
