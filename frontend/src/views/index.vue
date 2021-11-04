@@ -5,7 +5,7 @@
         <p class="card-title">个人中心</p>
       </div>
       <div class="card-body">
-        <p>昵称：{{ nickName }}</p>
+        <p>昵称：{{ nickname }}</p>
         <p>更新时间：{{ updated_at }}</p>
       </div>
       <div class="card-footer">
@@ -21,26 +21,39 @@
       <div class="card-body pl-0 pr-0">
         <div class="p-4 flex justify-around">
           <div>
-            <el-select v-model="currentEnv" placeholder="变量" size="small">
+            <el-select v-model="addEnvName" placeholder="变量" size="small">
               <el-option
                 v-for="env in envs"
                 :key="env.value"
                 :value="env.value"
                 :label="env.description"
+                :disabled="env.disabled"
+                @change="addEnvSelectionChange"
               ></el-option>
             </el-select>
           </div>
-          <el-input class="ml-3 mr-3" size="small"></el-input>
-          <el-button size="small">add</el-button>
+          <el-input
+            v-model="addEnvValue"
+            :placeholder="addEnvPlaceholder"
+            class="ml-3 mr-3"
+            size="small"
+          />
+          <el-button size="small" @click="addEnv">添加</el-button>
         </div>
 
         <el-table :data="tableData" style="width: 100%">
-          <el-table-column prop="name" label="名称" width="120px" align="center" />
+          <el-table-column
+            prop="name"
+            label="名称"
+            width="120px"
+            align="center"
+            :formatter="formatTitle"
+          />
           <el-table-column prop="value" label="值" min-width="200px" show-overflow-tooltip />
           <el-table-column
             prop="updated_at"
             label="更新时间"
-            width="80px"
+            width="100px"
             :formatter="formatDate"
             align="center"
           />
@@ -83,8 +96,8 @@
 </template>
 
 <script setup>
-import { getEnvsApi } from '@/api/env'
-import { delUsersApi, getUsersApi } from '@/api/user'
+import { getEnvsApi } from '@/api/common'
+import { addUserEnvApi, delUsersApi, getUsersApi } from '@/api/user'
 import store from '@/store'
 import { wait } from '@/utils'
 import { Delete, Edit } from '@element-plus/icons'
@@ -92,10 +105,12 @@ import dayjs from 'dayjs'
 import 'dayjs/locale/zh-cn'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { ElMessage } from 'element-plus'
-import { onMounted } from 'vue'
+import _ from 'lodash'
+import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
-const currentEnv = ref('')
+dayjs.extend(relativeTime)
+dayjs.locale('zh-cn')
 
 // get user info
 const nickname = ref('')
@@ -115,15 +130,62 @@ async function getUserInfo() {
 const envs = ref([])
 async function getEnvs() {
   const { data } = await getEnvsApi()
+  await Promise.all(data.map(async (item) => {
+    const created = _.some(tableData.value, { name: item.value });
+    if (item.single && created) {
+      item.disabled = true
+    } else {
+      item.disabled = false
+    }
+  }))
   envs.value = data || []
 }
 
+// add env
+const addEnvName = ref('')
+const addEnvValue = ref('')
+const isAddEnvLoading = ref(false)
+const addEnvPlaceholder = ref("请输入变量值")
+
+async function addEnvSelectionChange(value) {
+  const item = _.find(envs.value, { value })
+  addEnvPlaceholder.value = item.placeholder || "请输入变量值";
+}
+
+async function addEnv() {
+  try {
+    isAddEnvLoading.value = true
+    if (!addEnvName.value) {
+      throw new Error('请选择变量')
+    }
+    if (!addEnvValue.value) {
+      throw new Error('请输入变量值')
+    }
+    const { data, message } = await addUserEnvApi({
+      name: addEnvName.value,
+      value: addEnvValue.value,
+    })
+    if (!data) {
+      throw new Error('添加失败，请重试')
+    }
+    await getUserInfo()
+    ElMessage.success(message || '变量添加成功')
+  } catch (error) {
+    if (error.response) return
+    ElMessage.error(error.message)
+  } finally {
+    isAddEnvLoading.value = false
+  }
+}
+
+// logout
 function logout() {
   store.removeUserAction()
   const router = useRouter()
   router.push('/login')
 }
 
+// del account
 async function delAccount() {
   const { code } = await delUsersApi(store.state.user.id)
   if (code === 200) {
@@ -133,10 +195,14 @@ async function delAccount() {
   }
 }
 
-dayjs.extend(relativeTime)
-dayjs.locale('zh-cn')
+// format updated_at
 function formatDate(row, column, cellValue, index) {
   return dayjs(cellValue).fromNow()
+}
+
+// format name
+function formatTitle(row, column, cellValue, index) {
+  return _.find(envs.value, { value: cellValue })?.description || cellValue
 }
 
 const openUrlWithJD = (url) => {
@@ -204,9 +270,10 @@ const activity = [
 
 onMounted(async () => {
   try {
-    const promises = new Promise([getUserInfo(), getEnvs()])
+    const promises = Promise.all([getUserInfo(), getEnvs()])
     await promises
   } catch (error) {
+    if (error.response) return
     ElMessage.error(error.message)
   }
 })

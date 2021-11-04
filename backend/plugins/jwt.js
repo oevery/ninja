@@ -54,7 +54,7 @@ async function fastifyJwt(fastify, opts) {
     }
 
     // jwt verify
-    // await request.jwtVerify();
+    await request.jwtVerify();
   });
 }
 

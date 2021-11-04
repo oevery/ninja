@@ -21,9 +21,9 @@ const api = ky.extend({
     ],
     afterResponse: [
       async (request, options, response) => {
-        if (response.status !== 200) {
+        if (!response.ok) {
           const { message } = await response.json()
-          ElMessage.error(message)
+          ElMessage.error(message || response.statusText)
         }
         if (response.status === 401) {
           store.removeUserAction()

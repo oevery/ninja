@@ -192,7 +192,7 @@ export const notifyConfig = {
 };
 
 export const env = {
-  multiple: false,
+  single: true,
   value: '',
   description: '',
   placeholder: '',

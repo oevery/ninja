@@ -49,7 +49,7 @@ function fastifyAppUtils(fastify, opts, done) {
    * @return {object} updated data
    */
   async function updateDbData(data) {
-    return Object.assign(data, {
+    return fastify.lodash.merge(data, {
       updated_at: new Date(),
     });
   }

@@ -24,7 +24,13 @@
               </div>
               <div class="card-body text-center">
                 <el-input v-model="cookie" size="small" clearable class="my-4 w-full" />
-                <el-button :loading="logging" type="primary" size="small" round @click="loginCookie">登录</el-button>
+                <el-button
+                  :loading="logging"
+                  type="primary"
+                  size="small"
+                  round
+                  @click="loginCookie"
+                >登录</el-button>
               </div>
               <div class="card-footer"></div>
             </el-tab-pane>
@@ -73,8 +79,6 @@ async function getStatus() {
     const { data } = await getStatusApi()
     available.value = data.available
     enable.value = data.enable
-  } catch (error) {
-    console.log(error)
   } finally {
     loading.value = false
   }
@@ -110,6 +114,7 @@ async function loginCookie() {
     const router = useRouter()
     router.push('/')
   } catch (error) {
+    if (error.response) return
     ElMessage.error(error.message)
   } finally {
     logging.value = false
