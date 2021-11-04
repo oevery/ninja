@@ -7,6 +7,7 @@ specifiers:
   dayjs: ^1.10.7
   element-plus: 1.2.0-beta.1
   ky: ^0.28.6
+  lodash: ^4.17.21
   unplugin-element-plus: ^0.1.3
   unplugin-vue-components: 0.17.0
   vite: ^2.6.13
@@ -21,6 +22,7 @@ dependencies:
   dayjs: 1.10.7
   element-plus: 1.2.0-beta.1_vue@3.2.21
   ky: 0.28.6
+  lodash: 4.17.21
   vue: 3.2.21
   vue-router: 4.0.12_vue@3.2.21
 
