@@ -17,7 +17,7 @@ export default async function (fastify, opts) {
   });
 
   fastify.setNotFoundHandler((request, reply) => {
-    reply.code(404).send({ code: 404, message: 'Not found' });
+    reply.code(404).send({ code: 404, message: '你来到了一片荒漠' });
   });
 
   opts = {

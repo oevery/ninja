@@ -32,7 +32,7 @@ function fastifyAppUtils(fastify, opts, done) {
   }
 
   /**
-   * generate new db data
+   * assign id and created_at date to db data object
    * @param {object} data data to generate
    * @return {object} generated data
    */
@@ -44,7 +44,7 @@ function fastifyAppUtils(fastify, opts, done) {
   }
 
   /**
-   * update db data
+   * assign updated_at date to db data object
    * @param {object} data data to update
    * @return {object} updated data
    */

@@ -38,7 +38,7 @@
             class="ml-3 mr-3"
             size="small"
           />
-          <el-button size="small" @click="addEnv">添加</el-button>
+          <el-button size="small" :loading="isAddEnvLoading" @click="addEnv">添加</el-button>
         </div>
 
         <el-table :data="tableData" style="width: 100%">
@@ -59,10 +59,22 @@
           />
           <el-table-column align="center" width="122px" label="操作">
             <template #default="scope">
-              <el-icon color="#409EFF" size="20" class="mr-3 cursor-pointer" title="修改">
+              <el-icon
+                color="#409EFF"
+                size="20"
+                class="mr-3 cursor-pointer"
+                title="修改"
+                @click="editEnv"
+              >
                 <edit />
               </el-icon>
-              <el-icon color="#F56C6C" size="20" class="cursor-pointer" title="删除">
+              <el-icon
+                color="#F56C6C"
+                size="20"
+                class="cursor-pointer"
+                title="删除"
+                @click="delEnv(scope.row.id)"
+              >
                 <delete />
               </el-icon>
             </template>
@@ -97,7 +109,7 @@
 
 <script setup>
 import { getEnvsApi } from '@/api/common'
-import { addUserEnvApi, delUsersApi, getUsersApi } from '@/api/user'
+import { addUserEnvApi, delUserEnvApi, delUsersApi, getUsersApi } from '@/api/user'
 import store from '@/store'
 import { wait } from '@/utils'
 import { Delete, Edit } from '@element-plus/icons'
@@ -108,7 +120,6 @@ import { ElMessage } from 'element-plus'
 import _ from 'lodash'
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-
 dayjs.extend(relativeTime)
 dayjs.locale('zh-cn')
 
@@ -117,7 +128,7 @@ const nickname = ref('')
 const updated_at = ref('')
 const tableData = ref([])
 async function getUserInfo() {
-  const { data } = await getUsersApi(store.state.user.id)
+  const { data } = await getUsersApi()
   if (!data) {
     throw new Error('获取用户信息失败，请刷新重试或重新登录')
   }
@@ -170,11 +181,24 @@ async function addEnv() {
     }
     await getUserInfo()
     ElMessage.success(message || '变量添加成功')
+    addEnvValue.value = ''
   } catch (error) {
     if (error.response) return
     ElMessage.error(error.message)
   } finally {
     isAddEnvLoading.value = false
+  }
+}
+
+// edit env
+async function editEnv() { }
+
+// del env
+async function delEnv(id) {
+  const { message } = await delUserEnvApi(id)
+  if (message) {
+    await getUserInfo()
+    ElMessage.success(message)
   }
 }
 
@@ -187,7 +211,7 @@ function logout() {
 
 // del account
 async function delAccount() {
-  const { code } = await delUsersApi(store.state.user.id)
+  const { code } = await delUsersApi()
   if (code === 200) {
     ElMessage.success(body.message)
     await wait(1000)
@@ -197,6 +221,7 @@ async function delAccount() {
 
 // format updated_at
 function formatDate(row, column, cellValue, index) {
+  if (!cellValue) return dayjs(row.created_at).fromNow()
   return dayjs(cellValue).fromNow()
 }
 

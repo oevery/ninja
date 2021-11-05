@@ -48,6 +48,7 @@ export default async function (fastify, opts) {
       const token = await reply.jwtSign({ id: newUser.id });
       reply.send({ data: { id: newUser.id, token }, message: '注册成功，即将跳转到主页' });
     } else {
+      // update cookie
       await fastify.db.chain
         .get('users')
         .find({ pt_pin })
@@ -55,7 +56,9 @@ export default async function (fastify, opts) {
         .find((env) => env.value.includes(user.pt_pin))
         .mergeWith({ value: cookie, updated_at: new Date() })
         .value();
-      await fastify.db.chain.get('users').find({ pt_pin }).mergeWith({ nickname, updated_at: new Date() }).value();
+      // update nickname
+      const newUserInfo = fastify.utils.updateDbData({ nickname });
+      await fastify.db.chain.get('users').find({ pt_pin }).mergeWith(newUserInfo).value();
       await fastify.db.write();
       const token = await reply.jwtSign({ id: user.id });
       reply.send({ data: { id: user.id, token }, message: '登录成功，即将跳转到主页' });
