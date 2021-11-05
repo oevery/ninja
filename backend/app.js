@@ -60,18 +60,21 @@ export default async function (fastify, opts) {
   });
 
   // cors
-  fastify.register(cors, function (instance) {
-    return (req, callback) => {
-      let corsOptions;
-      const origin = req.headers.origin;
-      // do not include CORS headers for requests from localhost
-      const regex = new RegExp(`localhost:${process.env.FASTIFY_PORT}|127.0.0.1:${process.env.FASTIFY_PORT}`);
-      if (regex.test(origin)) {
-        corsOptions = { origin: false };
-      } else {
-        corsOptions = { origin: true };
-      }
-      callback(null, corsOptions); // callback expects two parameters: error and options
-    };
-  });
+  if (process.env.FASTIFY_CORS === 'true') {
+    fastify.register(cors, function (instance) {
+      return (req, callback) => {
+        let corsOptions;
+        const origin = req.headers.origin;
+        // do not include CORS headers for requests from localhost
+        const regex = new RegExp(`localhost:${process.env.FASTIFY_PORT}|127.0.0.1:${process.env.FASTIFY_PORT}`);
+        if (regex.test(origin)) {
+          corsOptions = { origin: false };
+        } else {
+          corsOptions = { origin: true };
+        }
+        corsOptions = { methods: ['GET', 'PUT', 'POST', 'DELETE'], maxAge: 3600 };
+        callback(null, corsOptions); // callback expects two parameters: error and options
+      };
+    });
+  }
 }
