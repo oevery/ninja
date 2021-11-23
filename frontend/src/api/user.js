@@ -16,7 +16,7 @@ export function delUsersApi() {
   if (!store.state.user.id || !store.state.user.token) {
     throw new Error('获取用户信息失败！请先登录')
   }
-  return api.delete(`users/${id}`).json()
+  return api.delete(`users/${store.state.user.id}`).json()
 }
 
 export function addUserEnvApi(data) {
