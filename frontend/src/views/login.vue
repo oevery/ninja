@@ -70,6 +70,8 @@ import { ElMessage } from 'element-plus'
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
+const router = useRouter()
+
 // get status
 const loading = ref(true)
 const available = ref(0)
@@ -111,7 +113,6 @@ async function loginCookie() {
     store.setUserAction(data)
     ElMessage.success(message)
     await wait(2000)
-    const router = useRouter()
     router.push('/')
   } catch (error) {
     if (error.response) return

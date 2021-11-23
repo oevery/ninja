@@ -21,7 +21,7 @@
       <div class="card-body pl-0 pr-0">
         <div class="p-4 flex justify-around">
           <div>
-            <el-select v-model="addEnvName" placeholder="变量" size="small">
+            <el-select v-model="addEnvName" placeholder="变量名称" size="small">
               <el-option
                 v-for="env in envs"
                 :key="env.value"
@@ -123,6 +123,8 @@ import { useRouter } from 'vue-router'
 dayjs.extend(relativeTime)
 dayjs.locale('zh-cn')
 
+const router = useRouter()
+
 // get user info
 const nickname = ref('')
 const updated_at = ref('')
@@ -205,15 +207,14 @@ async function delEnv(id) {
 // logout
 function logout() {
   store.removeUserAction()
-  const router = useRouter()
   router.push('/login')
 }
 
 // del account
 async function delAccount() {
-  const { code } = await delUsersApi()
-  if (code === 200) {
-    ElMessage.success(body.message)
+  const { message } = await delUsersApi()
+  if (message) {
+    ElMessage.success(message)
     await wait(1000)
     logout()
   }
