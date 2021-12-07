@@ -19,7 +19,7 @@ async function fastifyGot(fastify, opts) {
                 Authorization: `Bearer ${token}`,
               },
             };
-            qinglong.defaults.options.merge(updatedOptions);
+            qinglong.defaults.options.merge(updateOptions);
             return retryWithMergedOptions(updateOptions);
           }
           return response;

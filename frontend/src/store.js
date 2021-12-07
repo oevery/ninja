@@ -1,4 +1,4 @@
-import { reactive } from 'vue'
+import { reactive } from 'vue';
 
 const store = {
   state: reactive({
@@ -14,25 +14,25 @@ const store = {
     },
   }),
   setInfoAction(info) {
-    this.state.info = info
-    localStorage.setItem('title', info.title)
-    localStorage.setItem('version', info.version)
-    localStorage.setItem('notice', JSON.stringify(info.notice))
-    localStorage.setItem('login_notice', JSON.stringify(info.login_notice))
+    this.state.info = info;
+    localStorage.setItem('title', info.title);
+    localStorage.setItem('version', info.version);
+    localStorage.setItem('notice', JSON.stringify(info.notice));
+    localStorage.setItem('login_notice', JSON.stringify(info.login_notice));
   },
   setUserAction(user) {
-    this.state.user = user
-    localStorage.setItem('user_id', user.id)
-    localStorage.setItem('user_token', user.token)
+    this.state.user = user;
+    localStorage.setItem('user_id', user.id);
+    localStorage.setItem('user_token', user.token);
   },
   removeUserAction() {
     this.state.user = {
       id: undefined,
       token: undefined,
-    }
-    localStorage.removeItem('user_id')
-    localStorage.removeItem('user_token')
+    };
+    localStorage.removeItem('user_id');
+    localStorage.removeItem('user_token');
   },
-}
+};
 
-export default store
+export default store;

@@ -17,7 +17,10 @@ async function fastifyJwt(fastify, opts) {
     formatUser: (user) => {
       return {
         id: user.id,
-        role: fastify.db.chain.get('users').find({ id: user.id, pt_pin: process.env.ADMIN_PIN }).value()
+        role: fastify.db.chain
+          .get('users')
+          .find({ id: user.id, pt_pin: process.env.ADMIN_PIN })
+          .value()
           ? 'admin'
           : 'user',
       };
@@ -37,7 +40,9 @@ async function fastifyJwt(fastify, opts) {
 
     // get registered routes and check if the request path matches
     if (!new RegExp(fastify.routes.join('|')).test(request.url)) {
-      fastify.log.debug(`[${request.id}] ${request.url} is not a registered route skip jwt auth.`);
+      fastify.log.debug(
+        `[${request.id}] ${request.url} is not a registered route skip jwt auth.`
+      );
       return;
     }
 
@@ -45,7 +50,9 @@ async function fastifyJwt(fastify, opts) {
     const publicLists = ['^/api/info$', '^/api/status$', '^/api/login/'];
     const publicRegex = new RegExp(publicLists.join('|'));
     if (publicRegex.test(request.url)) {
-      fastify.log.debug(`[${request.id}] ${request.url} is a public route skip jwt auth.`);
+      fastify.log.debug(
+        `[${request.id}] ${request.url} is a public route skip jwt auth.`
+      );
       return;
     }
 
@@ -53,7 +60,9 @@ async function fastifyJwt(fastify, opts) {
     const adminLists = ['^/api/users$', '^/api/admin.*?$'];
     const adminRegex = new RegExp(adminLists.join('|'));
     if (adminRegex.test(request.url) && request.user?.role !== 'admin') {
-      fastify.log.debug(`[${request.id}] ${request.url} is an admin route skip need admin role.`);
+      fastify.log.debug(
+        `[${request.id}] ${request.url} is an admin route skip need admin role.`
+      );
       throw fastify.httpErrors.forbidden();
     }
 
@@ -61,7 +70,9 @@ async function fastifyJwt(fastify, opts) {
     await request.jwtVerify();
 
     if (request.params.userId && request.user.id !== request.params.userId) {
-      fastify.log.debug(`[${request.id}] ${request.url} userId dont consistency, throw error`);
+      fastify.log.debug(
+        `[${request.id}] ${request.url} userId dont consistency, throw error`
+      );
       throw fastify.httpErrors.unauthorized();
     }
   });
@@ -73,5 +84,10 @@ export default fp(fastifyJwt, {
   decorators: {
     fastify: ['db', 'nanoid', 'lodash', 'routes'],
   },
-  dependencies: ['fastify-lowdb', 'fastify-nanoid', 'fastify-lodash', 'fastify-routes'],
+  dependencies: [
+    'fastify-lowdb',
+    'fastify-nanoid',
+    'fastify-lodash',
+    'fastify-routes',
+  ],
 });

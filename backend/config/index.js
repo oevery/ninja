@@ -1,5 +1,7 @@
 import { readFile } from 'fs/promises';
-const json = JSON.parse(await readFile(new URL('../package.json', import.meta.url)));
+const json = JSON.parse(
+  await readFile(new URL('../package.json', import.meta.url))
+);
 
 // ninja info config
 export const infoConfig = {
@@ -59,7 +61,8 @@ export const notifyConfig = {
       url: {
         value: '',
         label: 'GOBOT 地址',
-        description: '推送到个人QQ: http://127.0.0.1/send_private_msg 群：http://127.0.0.1/send_group_msg ',
+        description:
+          '推送到个人QQ: http://127.0.0.1/send_private_msg 群：http://127.0.0.1/send_group_msg ',
       },
       token: {
         value: '',
@@ -88,7 +91,8 @@ export const notifyConfig = {
       push: {
         value: '',
         label: 'Bark Push',
-        description: 'Bark App 的信息(IP/设备码，例如：https://api.day.app/XXXXXXXX)',
+        description:
+          'Bark App 的信息(IP/设备码，例如：https://api.day.app/XXXXXXXX)',
       },
       sound: {
         value: '',

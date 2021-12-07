@@ -1,5 +1,12 @@
 import fp from 'fastify-plugin';
-import { container, env, envConfig, infoConfig, notifyConfig, userConfig } from '../config/index.js';
+import {
+  container,
+  env,
+  envConfig,
+  infoConfig,
+  notifyConfig,
+  userConfig,
+} from '../config/index.js';
 
 /**
  * @param {import("fastify").FastifyInstance} fastify

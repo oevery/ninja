@@ -1,0 +1,9 @@
+build
+coverage
+dist
+static
+backend/static
+**/*.min.*
+**/node_modules/**
+
+pnpm-lock.yaml

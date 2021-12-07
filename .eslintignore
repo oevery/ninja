@@ -1,0 +1,8 @@
+build
+coverage
+dist
+/backend/static
+
+**/*.min.*
+**/node_modules/**
+**/vendor/**

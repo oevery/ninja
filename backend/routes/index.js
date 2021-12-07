@@ -3,14 +3,16 @@
  * @param {*} opts
  */
 export default async function (fastify, opts) {
-  fastify.get('/status', opts, function (request, reply) {
-    const enable = fastify.db.data.config.user.enable || fastify.Appconfig.user.enable;
+  fastify.get('/status', opts, (request, reply) => {
+    const enable =
+      fastify.db.data.config.user.enable || fastify.Appconfig.user.enable;
     const available =
-      (fastify.db.data.container.limit || fastify.AppTemplate.container.limit) - fastify.db.data.users.length;
+      (fastify.db.data.container.limit || fastify.AppTemplate.container.limit) -
+      fastify.db.data.users.length;
     reply.send({ data: { enable, available } });
   });
 
-  fastify.get('/info', opts, async function (request, reply) {
+  fastify.get('/info', opts, async (request, reply) => {
     reply.send({ data: fastify.db.data.config.info });
   });
 
@@ -21,14 +23,19 @@ export default async function (fastify, opts) {
     // get jing dong account nickname
     const nickname = await fastify.utils.getJdNickname(cookie);
     if (!nickname) {
-      throw new fastify.httpErrors.createError(500, '账户解析失败，请检查后重试', {
-        err_code: 'ACCOUNT_INVALID',
-      });
+      throw new fastify.httpErrors.createError(
+        500,
+        '账户解析失败，请检查后重试',
+        {
+          err_code: 'ACCOUNT_INVALID',
+        }
+      );
     }
 
     let user = await fastify.db.chain.get('users').find({ pt_pin }).value();
     const newUser = !user;
-    const allowNewUser = fastify.db.data.config.user.enable || fastify.Appconfig.user.enable;
+    const allowNewUser =
+      fastify.db.data.config.user.enable || fastify.Appconfig.user.enable;
     if (!user && !allowNewUser) {
       throw new fastify.httpErrors.createError(500, '管理员已关闭新用户注册', {
         err_code: 'ACCOUNT_DISABLED',
@@ -60,7 +67,10 @@ export default async function (fastify, opts) {
         .mergeWith({ value: cookie, updated_at: new Date() })
         .value();
     } else {
-      const env = await fastify.utils.generateDbData({ name: 'JD_COOKIE', value: cookie });
+      const env = await fastify.utils.generateDbData({
+        name: 'JD_COOKIE',
+        value: cookie,
+      });
       await user.envs.unshift(env);
     }
     // save to db
@@ -72,6 +82,9 @@ export default async function (fastify, opts) {
     await fastify.db.write();
 
     const token = await reply.jwtSign({ id: user.id });
-    reply.send({ data: { id: user.id, token }, message: '登录成功，即将跳转到主页' });
+    reply.send({
+      data: { id: user.id, token },
+      message: '登录成功，即将跳转到主页',
+    });
   });
 }

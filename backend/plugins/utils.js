@@ -9,11 +9,17 @@ function fastifyAppUtils(fastify, opts, done) {
    * get qinglong container new jwt token and save it to lowdb
    */
   async function getNewToken() {
-    const { name, id, url, client_id, client_secret } = fastify.db.chain.get('container').value();
+    const { url, client_id, client_secret } = fastify.db.chain
+      .get('container')
+      .value();
     if (!url) {
-      throw fastify.httpErrors.createError(500, 'container url is empty, get new token failed', {
-        err_code: 'CONTAINER_EMPTY_URL',
-      });
+      throw fastify.httpErrors.createError(
+        500,
+        'container url is empty, get new token failed',
+        {
+          err_code: 'CONTAINER_EMPTY_URL',
+        }
+      );
     }
     const { data } = await fastify
       .got('open/auth/token', {

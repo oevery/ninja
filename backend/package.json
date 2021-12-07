@@ -1,7 +1,8 @@
 {
-  "name": "backend2",
-  "version": "1.0.0",
-  "description": "",
+  "name": "backend",
+  "version": "0.0.0",
+  "description": "ninja backend",
+  "private": true,
   "main": "app.js",
   "directories": {
     "test": "test"
@@ -9,23 +10,24 @@
   "scripts": {
     "test": "tap \"test/**/*.test.js\"",
     "start": "fastify start -l info app.js",
-    "dev": "fastify start -w -l info --ignore-watch='node_modules .git logs db' -P app.js"
+    "dev": "fastify start -w -l info --ignore-watch='node_modules .git logs db' -P app.js",
+    "preinstall": "npx only-allow pnpm"
   },
   "type": "module",
   "dependencies": {
-    "fastify": "^3.22.1",
+    "fastify": "^3.24.1",
     "fastify-autoload": "^3.9.0",
-    "fastify-cli": "^2.13.0",
+    "fastify-cli": "^2.14.0",
     "fastify-cors": "^6.0.2",
     "fastify-jwt": "^3.2.1",
     "fastify-plugin": "^3.0.0",
-    "fastify-sensible": "^3.1.1",
-    "got": "^11.8.2",
+    "fastify-sensible": "^3.1.2",
+    "got": "^11.8.3",
     "lodash": "^4.17.21",
     "lowdb": "^3.0.0",
     "nanoid": "^3.1.30"
   },
   "devDependencies": {
-    "tap": "^15.0.10"
+    "tap": "^15.1.5"
   }
 }

@@ -6,5 +6,6 @@
     },
     "types": ["element-plus/global"]
   },
+  "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]
 }

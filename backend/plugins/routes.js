@@ -4,7 +4,7 @@ import fp from 'fastify-plugin';
  * @param {*} opts
  */
 async function fastifyRoutes(fastify, opts) {
-  fastify.decorate('routes', new Array());
+  fastify.decorate('routes', []);
 
   fastify.addHook('onRoute', (routeOptions) => {
     const { url } = routeOptions;

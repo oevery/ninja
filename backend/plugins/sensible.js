@@ -6,7 +6,7 @@ import fastifySensible from 'fastify-sensible';
  *
  * @see https://github.com/fastify/fastify-sensible
  */
-export default fp(async function (fastify, opts) {
+export default fp(async (fastify, opts) => {
   fastify.register(fastifySensible, {
     errorHandler: false,
   });

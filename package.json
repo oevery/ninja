@@ -1,0 +1,27 @@
+{
+  "name": "ninja",
+  "version": "2.0.0",
+  "description": "qinglong enhanced plugin ninja",
+  "private": true,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint --ext .js,.jsx,.ts,.tsx,.vue",
+    "format": "eslint . --ext .js,.jsx,.ts,.tsx,.vue --fix && prettier --write .",
+    "format:staged": "eslint . --ext .js,.jsx,.ts,.tsx,.vue --fix && pretty-quick --staged --verbose",
+    "format:check": "eslint . --ext .js,.jsx,.ts,.tsx,.vue && prettier --check .",
+    "prepare": "husky install",
+    "preinstall": "npx only-allow pnpm"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.16.0",
+    "@babel/eslint-parser": "^7.16.3",
+    "@moonbegonia/prettier-config": "^1.1.0",
+    "eslint": "^8.4.1",
+    "eslint-config-alloy": "^4.4.0",
+    "eslint-plugin-vue": "^8.2.0",
+    "husky": "^7.0.4",
+    "prettier": "^2.5.1",
+    "pretty-quick": "^3.1.2",
+    "vue-eslint-parser": "^8.0.1"
+  }
+}

@@ -1,11 +1,11 @@
-import api from './index.js'
+import api from './index.js';
 
 /**
  * get site info
  * @returns {Promise}
  */
 export function getInfoApi() {
-  return api.get('info').json()
+  return api.get('info').json();
 }
 
 /**
@@ -13,7 +13,7 @@ export function getInfoApi() {
  * @returns {Promise}
  */
 export function getStatusApi() {
-  return api.get('status').json()
+  return api.get('status').json();
 }
 
 /**
@@ -21,5 +21,5 @@ export function getStatusApi() {
  * @returns {Promise}
  */
 export function getEnvsApi() {
-  return api.get(`envs`).json()
+  return api.get(`envs`).json();
 }
