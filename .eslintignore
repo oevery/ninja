@@ -2,7 +2,7 @@ build
 coverage
 dist
 /backend/static
-
+/backend/test
 **/*.min.*
 **/node_modules/**
 **/vendor/**

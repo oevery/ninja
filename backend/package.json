@@ -28,6 +28,7 @@
     "nanoid": "^3.1.30"
   },
   "devDependencies": {
+    "@types/lodash": "^4.14.178",
     "tap": "^15.1.5"
   }
 }
