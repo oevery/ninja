@@ -6,7 +6,7 @@
     "serve": "vite preview"
   },
   "dependencies": {
-    "element-plus": "^1.0.2-beta.62",
+    "element-plus": "^2.1.0",
     "ky": "^0.28.5",
     "vue": "^3.1.5",
     "vue-router": "^4.0.10"
