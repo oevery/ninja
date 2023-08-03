@@ -17,7 +17,7 @@
     "autoprefixer": "^10.3.1",
     "postcss": "^8.3.6",
     "tailwindcss": "^2.2.7",
-    "vite": "^2.4.3",
+    "vite": "^2.9.16",
     "vite-plugin-async-catch": "^0.1.7",
     "vite-plugin-style-import": "^1.0.1"
   }
