@@ -71,6 +71,7 @@ Ninja 仅支持 qinglong 2.8.2+
    + -v $PWD/ql/ninja:/ql/ninja \
      -p 5700:5700 \
    + -p 5701:5701 \
+   + -p 5702:5702 \
      --name qinglong \
      --hostname qinglong \
      --restart unless-stopped \
